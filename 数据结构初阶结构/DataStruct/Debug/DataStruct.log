@@ -1,0 +1,6 @@
+﻿  TestMain.c
+D:\数据结构初阶结构\DataStruct\Stack.h(68,3): warning C4033: “SeqStackTop”必须返回值
+D:\数据结构初阶结构\DataStruct\TestMain.c(14,6): warning C4101: “left”: 未引用的局部变量
+D:\数据结构初阶结构\DataStruct\TestMain.c(14,11): warning C4101: “right”: 未引用的局部变量
+D:\数据结构初阶结构\DataStruct\Stack.h(72): warning C4715: “SeqStackTop”: 不是所有的控件路径都返回值
+  DataStruct.vcxproj -> D:\数据结构初阶结构\Debug\DataStruct.exe

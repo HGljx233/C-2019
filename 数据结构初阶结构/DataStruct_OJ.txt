@@ -1,0 +1,1283 @@
+Lesson3_顺序表_链表
+1、原地移除数组中所有的元素val  [https://leetcode-cn.com/problems/remove-element/]
+int removeElement(int* nums, int numsSize, int val)
+{
+    for(int i=0; i<numsSize; )
+    {
+        if(nums[i] == val)
+        {
+            //移动数据进行删除
+            for(int k=i; k<numsSize-1; ++k)
+                nums[k] = nums[k+1];
+            numsSize--;
+        }
+        else
+            i++;
+    }
+    return numsSize;
+}
+
+2、删除排序数组中的重复项 [https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/]
+//暴力求解法
+int removeDuplicates(int* nums, int numsSize)
+{
+    if(numsSize <= 1)
+        return numsSize;
+    
+    int cur = 0;
+    while(cur < numsSize-1)
+    {
+        int next = cur+1;
+        while(next<numsSize && nums[next] == nums[cur])
+            next++;
+        int count = next - cur - 1;
+        for(int k=cur+1; k<numsSize-count; ++k)
+            nums[k] = nums[k+count];
+        numsSize -= count;
+        cur++;
+    }
+    return numsSize;
+}
+//双指针法
+int removeDuplicates(int* nums, int numsSize)
+{
+    if(numsSize <= 1)
+        return numsSize;
+    
+    int t=1;
+    for(int i=1; i<numsSize; ++i)
+    {
+        if(nums[i] != nums[i-1])
+            nums[t++] = nums[i];
+    }
+    return t;
+}
+
+3、合并两个有序数组 [https://leetcode-cn.com/problems/merge-sorted-array/]
+//排序法
+void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n)
+{
+    memcpy(nums1+m, nums2, sizeof(int)*n);
+    for(int i=0; i<m+n-1; ++i)
+    {
+        for(int j=0; j<m+n-i-1; ++j)
+        {
+            if(nums1[j] > nums1[j+1])
+            {
+                int tmp = nums1[j];
+                nums1[j] = nums1[j+1];
+                nums1[j+1] = tmp;
+            }
+        }
+    }
+}
+
+//
+void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n)
+{
+    int *tmp = (int*)malloc(sizeof(int)*(m+n));
+    int i=0, j=0;
+    int k = 0;
+    while(i<m && j<n)
+    {
+        if(nums1[i] < nums2[j])
+            tmp[k++] = nums1[i++];
+        else
+            tmp[k++] = nums2[j++];
+    }
+
+    while(i < m)
+        tmp[k++] = nums1[i++];
+    while(j < n)
+        tmp[k++] = nums2[j++];
+    
+    memcpy(nums1, tmp, sizeof(int)*(m+n));
+    free(tmp);
+    tmp = NULL;
+}
+
+//链表OJ
+1、移除链表元素 [https://leetcode-cn.com/problems/remove-linked-list-elements/description/]
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+struct ListNode* removeElements(struct ListNode* head, int val)
+{
+    if(head == NULL)
+        return NULL;
+    
+    struct ListNode *p = head;
+    struct ListNode *prev = NULL;
+    while(p != NULL)
+    {
+        if(p->val == val)
+        {
+            if(prev == NULL)
+                head = p->next;
+            else
+                prev->next = p->next;
+            free(p);
+        }
+        else
+            prev = p;
+        if(prev == NULL)
+            p = head;
+        else
+            p = prev->next;
+    }
+    return head;
+}
+
+2、反转链表 [https://leetcode-cn.com/problems/reverse-linked-list/description/]
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+
+struct ListNode* reverseList(struct ListNode* head)
+{
+    if(head==NULL || head->next==NULL)
+        return head;
+    
+    //断开链表
+    struct ListNode *p = head->next;
+    head->next = NULL;
+
+    while(p != NULL)
+    {
+        struct ListNode *q = p->next;
+        p->next = head;
+        head = p;
+
+        p = q;
+    }
+    return head;
+}
+
+3、链表的中间结点 [https://leetcode-cn.com/problems/middle-of-the-linked-list/description/]
+//长度法
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+
+int getListLength(struct ListNode *head)
+{
+    int len = 0;
+    while(head != NULL)
+    {
+        len++;
+        head = head->next;
+    }    
+    return len;
+}
+struct ListNode* middleNode(struct ListNode* head)
+{
+    if(head==NULL || head->next==NULL)
+        return head;
+
+    int len = getListLength(head);
+    struct ListNode *midnode = head;
+    for(int i=0; i<len/2; ++i)
+        midnode = midnode->next;
+    return midnode;
+}
+//快慢指针法
+struct ListNode* middleNode(struct ListNode* head)
+{
+    if(head==NULL || head->next==NULL)
+        return head;
+
+    struct ListNode *fast, *slow;
+    fast = slow = head;
+    while(fast && fast->next!=NULL)
+    {
+        fast = fast->next->next;
+        slow = slow->next;        
+    }
+    return slow;
+}
+
+4、链表中倒数第k个结点 [https://www.nowcoder.com/practice/529d3ae5a407492994ad2a246518148a?tpId=13&&tqId=11167&rp=2&ru=/activity/oj&qru=/ta/coding-interviews/question-ranking]
+//长度法
+int getListLength(struct ListNode *head)
+{
+    int len = 0;
+    while(head != NULL)
+    {
+        len++;
+        head = head->next;
+    }    
+    return len;
+}
+struct ListNode* FindKthToTail(struct ListNode* pListHead, int k ) 
+{
+    // write code here
+    if(pListHead == NULL)
+        return NULL;
+    int len = getListLength(pListHead);
+    struct ListNode *p = pListHead;
+    
+    if(k > len)
+        return NULL;
+    
+    int step = len - k;
+    while(step-- > 0)
+        p = p->next;
+    return p;
+}
+//双指针法
+struct ListNode* FindKthToTail(struct ListNode* pListHead, int k ) 
+{
+    // write code here
+    if(pListHead == NULL)
+        return NULL;
+    struct ListNode *fast, *slow;
+    fast = slow = pListHead;
+    while(k-- > 0)
+    {
+        if(fast == NULL)
+            return NULL;
+        fast = fast->next;
+    }
+    
+    while(fast != NULL)
+    {
+        fast = fast->next;
+        slow = slow->next;
+    }
+    return slow;    
+}
+
+5、合并两个有序链表 [https://leetcode-cn.com/problems/merge-two-sorted-lists/description/]
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+
+struct ListNode* mergeTwoLists(struct ListNode* l1, struct ListNode* l2)
+{    
+    if(l1 == NULL)
+        return l2;
+    else if(l2 == NULL)
+        return l1;
+    
+    struct ListNode *head;
+    if(l1->val < l2->val)
+    {
+        head = l1;
+        l1 = l1->next;
+    }
+    else
+    {
+        head = l2;
+        l2 = l2->next;
+    }
+
+    struct ListNode *tail = head;
+    while(l1!=NULL && l2!=NULL)
+    {
+        if(l1->val < l2->val)
+        {
+            tail->next = l1;
+            l1 = l1->next;
+        }
+        else
+        {
+            tail->next = l2;
+            l2 = l2->next;
+        }
+        tail = tail->next;
+    }
+    if(l1 != NULL)
+        tail->next = l1;
+    if(l2 != NULL)
+        tail->next = l2;
+    return head;
+}
+
+
+6、链表分割 [https://www.nowcoder.com/practice/0e27e0b064de4eacac178676ef9c9d70?tpId=8&&tqId=11004&rp=2&ru=/activity/oj&qru=/ta/cracking-the-coding-interview/question-ranking]
+/*
+struct ListNode {
+    int val;
+    struct ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};*/
+class Partition {
+public:
+    ListNode* partition(ListNode* pHead, int x) 
+    {
+        // write code here
+        if(pHead == NULL)
+            return NULL;
+        ListNode *less, *lessTail, *great, *greatTail;
+        less = lessTail = (ListNode*)malloc(sizeof(ListNode));
+        great = greatTail = (ListNode*)malloc(sizeof(ListNode));
+        
+        while(pHead != NULL)
+        {
+            if(pHead->val < x)
+            {
+                lessTail->next = pHead;
+                lessTail = lessTail->next;
+            }
+            else
+            {
+                greatTail->next = pHead;
+                greatTail = greatTail->next;
+            }
+            pHead = pHead->next;
+        }
+        
+        lessTail->next = great->next;
+        greatTail->next = NULL; // 预防出现环的情况
+        pHead = less->next;
+        free(less);
+        free(great);
+        
+        return pHead;
+    }
+};
+
+7、链表的回文结构 [https://www.nowcoder.com/practice/d281619e4b3e4a60a2cc66ea32855bfa?tpId=49&&tqId=29370&rp=1&ru=/activity/oj&qru=/ta/2016test/question-ranking]
+/*
+struct ListNode {
+    int val;
+    struct ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};*/
+class PalindromeList {
+public:
+    bool chkPalindrome(ListNode* A) 
+    {
+        // write code here
+        if(A == NULL)
+            return true;
+        int tmp[900] = {0};
+        
+        ListNode *p = A;
+        int k = 0;
+        while(p != NULL)
+        {
+            tmp[k++] = p->val;
+            p = p->next;
+        }
+        
+        int start = 0;
+        int end = k-1;
+        while(start < end)
+        {
+            if(tmp[start] != tmp[end])
+                return false;
+            start++;
+            end--;
+        }
+        return true;
+    }
+};
+
+8、相交链表 [https://leetcode-cn.com/problems/intersection-of-two-linked-lists/description/]
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+int getListLength(struct ListNode *head)
+{
+    int len = 0;
+    while(head != NULL)
+    {
+        len++;
+        head = head->next;
+    }    
+    return len;
+}
+
+struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *headB)
+{
+    if(headA==NULL || headB==NULL)
+        return NULL;
+    
+    int lenA = getListLength(headA);
+    int lenB = getListLength(headB);
+
+    struct ListNode *longList, *shortList;
+    if(lenA > lenB)
+    {
+        longList = headA;
+        shortList = headB;
+    }
+    else
+    {
+        longList = headB;
+        shortList = headA;
+    }
+
+    int offset = abs(lenA - lenB);
+    while(offset-- > 0)
+        longList = longList->next;
+    
+    while(longList != NULL)
+    {
+        if(longList == shortList)
+            return longList;
+        longList = longList->next;
+        shortList = shortList->next;
+    }
+    return NULL;
+}
+
+
+9、环形链表 [https://leetcode-cn.com/problems/linked-list-cycle/description/]
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+bool hasCycle(struct ListNode *head) 
+{
+    if(head == NULL)
+        return NULL;
+
+    struct ListNode *fast, *slow;
+    fast = slow = head;
+    while(fast && fast->next!=NULL)
+    {
+        fast = fast->next->next;
+        slow = slow->next;
+        if(fast == slow)
+            return true;
+    }
+    return false;
+}
+
+10、环形链表的入口节点 [https://leetcode-cn.com/problems/linked-list-cycle-ii/]
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+struct ListNode *detectCycle(struct ListNode *head) 
+{
+    if(head == NULL)
+        return;
+    struct ListNode *fast, *slow;
+    fast = slow = head;
+    //先判断是否有环
+    while(fast && fast->next!=NULL)
+    {
+        fast = fast->next->next;
+        slow = slow->next;
+        if(fast == slow)
+            break;
+    }    
+    if(fast==NULL || fast->next==NULL)
+        return NULL;
+    
+    fast = head;
+    while(fast != slow)
+    {
+        fast = fast->next;
+        slow = slow->next;
+    }
+    return fast;
+}
+
+11、复制带随机指针的链表 [https://leetcode-cn.com/problems/copy-list-with-random-pointer/description/]
+/**
+ * Definition for a Node.
+ * struct Node {
+ *     int val;
+ *     struct Node *next;
+ *     struct Node *random;
+ * };
+ */
+
+void copyList(struct Node *head)
+{
+    struct Node *p = head;
+    while(p != NULL)
+    {
+        struct Node *s = (struct Node*)malloc(sizeof(struct Node));
+        s->val = p->val;
+        s->random = NULL;
+        s->next = p->next;
+        p->next = s;
+        p = s->next;
+    }
+}
+
+void copyRandom(struct Node *head)
+{
+    struct Node *p = head;
+    while(p != NULL)
+    {
+        struct Node *clone = p->next;        
+        if(p->random != NULL)
+            clone->random = p->random->next;
+        p = clone->next;
+    }
+}
+
+struct Node* splitList(struct Node *head)
+{
+    struct Node *p = head;
+    struct Node *pclone = p->next; //新拷贝的链表
+    struct Node *tail = pclone;
+
+    while(p != NULL)
+    {
+        p->next = tail->next;
+        p = p->next;
+        if(p != NULL)
+            tail->next = p->next;
+        tail = tail->next;
+    }
+    return pclone;
+}
+
+struct Node* copyRandomList(struct Node* head) 
+{
+    if(head == NULL)
+        return NULL;
+	//1 拷贝链表
+    copyList(head);
+
+    //2 拷贝随机指针
+    copyRandom(head);
+
+    //3 拆分链表
+    return splitList(head);
+}
+
+
+Lesson4-栈和队列
+1、有效的括号 [https://leetcode-cn.com/problems/valid-parentheses/]
+
+//链栈
+#define ElemType char
+typedef struct LinkStackNode
+{
+	ElemType data;
+	struct LinkStackNode *next;
+}LinkStackNode;
+typedef struct LinkStack
+{
+	LinkStackNode *head;
+}LinkStack;
+
+void LinkStackInit(LinkStack *pst);
+void LinkStackPush(LinkStack *pst, ElemType v);
+void LinkStackPop(LinkStack *pst);
+ElemType LinkStackTop(LinkStack *pst);
+void LinkStackShow(LinkStack *pst);
+void LinkStackDestroy(LinkStack *pst);
+bool LinkStackEmpty(LinkStack *pst);
+
+void LinkStackInit(LinkStack *pst)
+{
+	pst->head = NULL;
+}
+
+void LinkStackPush(LinkStack *pst, ElemType v)
+{
+	LinkStackNode *s = (LinkStackNode*)malloc(sizeof(LinkStackNode));
+	assert(s != NULL);
+	s->data = v;
+
+	s->next = pst->head;
+	pst->head = s;
+}
+
+void LinkStackPop(LinkStack *pst)
+{
+	LinkStackNode *p;
+	if(pst->head == NULL)
+		return;
+	p  = pst->head;
+	pst->head = p->next;
+	free(p);
+}
+
+ElemType LinkStackTop(LinkStack *pst)
+{
+	assert(pst->head != NULL);
+	return pst->head->data;
+}
+
+void LinkStackShow(LinkStack *pst)
+{
+	LinkStackNode *p = pst->head;
+	while(p != NULL)
+	{
+		printf("%d\n", p->data);
+		p = p->next;
+	}
+}
+
+void LinkStackDestroy(LinkStack *pst)
+{
+	LinkStackNode *p = pst->head;
+	while(p != NULL)
+	{
+		pst->head = p->next;
+		free(p);
+		p = pst->head;
+	}
+}
+
+bool LinkStackEmpty(LinkStack *pst)
+{
+    return pst->head == NULL;    
+}
+//////////////////////////////////////////////
+
+bool isValid(char * s)
+{
+    if(s==NULL || *s=='\0')
+        return true;
+    
+    LinkStack st;
+    LinkStackInit(&st);
+
+    while(*s != '\0')
+    {
+        if(*s=='{' || *s=='[' || *s=='(')
+            LinkStackPush(&st, *s);
+        else
+        {
+            if(LinkStackEmpty(&st))
+                return false;
+            char top_val = LinkStackTop(&st);
+            if( (*s=='}' && top_val!='{') ||
+                (*s==']' && top_val!='[') ||
+                (*s==')' && top_val!='(') )
+                return false;
+            
+            LinkStackPop(&st);
+        }
+        s++;
+    }
+    if(LinkStackEmpty(&st))
+        return true;
+    return false;
+}
+
+//使用数组模拟栈
+bool isValid(char * s)
+{
+    if(s==NULL || *s=='\0')
+        return true;
+    int len = strlen(s);
+    //开辟栈空间
+    char *st = (char*)malloc(sizeof(char) * len);
+    int top = 0; //栈顶指针
+
+    while(*s != '\0')
+    {
+        if(*s=='{' || *s=='[' || *s=='(')
+            st[top++] = *s; //入栈
+        else
+        {
+            if(top == 0)
+                return false;
+            char top_val = st[top-1];
+            if( (*s=='}' && top_val!='{') ||
+                (*s==']' && top_val!='[') ||
+                (*s==')' && top_val!='(') )
+                return false;
+            
+            top--;//出栈
+        }
+        s++;
+    }
+
+    free(st);
+    st = NULL;
+    
+    if(top == 0)
+        return true;
+    return false;
+}
+
+
+2、用队列实现栈 [https://leetcode-cn.com/problems/implement-stack-using-queues/]
+
+//链队列
+#define ElemType int
+typedef struct LinkQueueNode
+{
+	ElemType data;
+	struct LinkQueueNode *link;
+}LinkQueueNode;
+
+typedef struct LinkQueue
+{
+	LinkQueueNode *front;
+	LinkQueueNode *rear;
+}LinkQueue;
+
+void LinkQueueInit(LinkQueue *pq);
+void LinkQueuePush(LinkQueue *pq, ElemType v);
+void LinkQueuePop(LinkQueue *pq);
+ElemType LinkQueueFront(LinkQueue *pq);
+ElemType LinkQueueBack(LinkQueue *pq);
+void LinkQueueShow(LinkQueue *pq);
+bool LinkQueueEmpty(LinkQueue *pq);
+void LinkQueueDestroy(LinkQueue *pq);
+
+void LinkQueueInit(LinkQueue *pq)
+{
+	pq->front = pq->rear = NULL;
+}
+void LinkQueuePush(LinkQueue *pq, ElemType v)
+{
+	LinkQueueNode *s = (LinkQueueNode*)malloc(sizeof(LinkQueueNode));
+	assert(s != NULL);
+	s->data = v;
+	s->link = NULL;
+
+	if(pq->front == NULL)
+		pq->front = pq->rear = s;
+	else
+	{
+		pq->rear->link = s;
+		pq->rear = s;
+	}
+}
+void LinkQueuePop(LinkQueue *pq)
+{
+	LinkQueueNode *p;
+	if(pq->front == NULL)
+		return;
+	p = pq->front;
+	pq->front = p->link;
+	free(p);
+}
+
+ElemType LinkQueueFront(LinkQueue *pq)
+{
+	assert(pq->front != NULL);
+	return pq->front->data;
+}
+ElemType LinkQueueBack(LinkQueue *pq)
+{
+	assert(pq->front != NULL);
+	return pq->rear->data;
+}
+void LinkQueueShow(LinkQueue *pq)
+{
+	LinkQueueNode *p = pq->front;
+	while(p != NULL)
+	{
+		printf("%d ", p->data);
+		p = p->link;
+	}
+	printf("\n");
+}
+
+bool LinkQueueEmpty(LinkQueue *pq)
+{
+    return pq->front == NULL;    
+}
+
+void LinkQueueDestroy(LinkQueue *pq)
+{
+    while(pq->front != NULL)
+    {
+        LinkQueueNode *p = pq->front;
+        pq->front = p->link;
+        free(p);
+    }
+    pq->front = pq->rear = NULL;
+}
+
+////////////////////////////////////////////////////////////
+typedef struct 
+{
+    LinkQueue q1;
+    LinkQueue q2;
+} MyStack;
+
+/** Initialize your data structure here. */
+
+MyStack* myStackCreate() 
+{
+    MyStack *pst = (MyStack*)malloc(sizeof(MyStack));
+    LinkQueueInit(&(pst->q1));
+    LinkQueueInit(&(pst->q2));
+    return pst;
+}
+
+/** Push element x onto stack. */
+void myStackPush(MyStack* obj, int x) 
+{
+    LinkQueue *pnoempty;
+    if(!LinkQueueEmpty(&(obj->q1)))    
+        pnoempty = &(obj->q1);
+    else
+        pnoempty = &(obj->q2);
+    LinkQueuePush(pnoempty, x);
+}
+
+/** Removes the element on top of the stack and returns that element. */
+int myStackPop(MyStack* obj) 
+{
+    LinkQueue *pnoempty, *pempty;
+    if(!LinkQueueEmpty(&(obj->q1)))
+    {
+        pnoempty = &(obj->q1);
+        pempty = &(obj->q2);
+    }
+    else
+    {
+        pnoempty = &(obj->q2);
+        pempty = &(obj->q1);
+    }
+
+    int val;
+    while(!LinkQueueEmpty(pnoempty))
+    {
+        val = LinkQueueFront(pnoempty);
+        LinkQueuePop(pnoempty);
+        
+        if(LinkQueueEmpty(pnoempty))
+            break;
+
+        LinkQueuePush(pempty, val);
+    }
+    return val;
+}
+
+/** Get the top element. */
+int myStackTop(MyStack* obj) 
+{
+    LinkQueue *pnoempty, *pempty;
+    if(!LinkQueueEmpty(&(obj->q1)))
+    {
+        pnoempty = &(obj->q1);
+        pempty = &(obj->q2);
+    }
+    else
+    {
+        pnoempty = &(obj->q2);
+        pempty = &(obj->q1);
+    }
+
+    int val;
+    while(!LinkQueueEmpty(pnoempty))
+    {
+        val = LinkQueueFront(pnoempty);
+        LinkQueuePop(pnoempty);        
+        LinkQueuePush(pempty, val);
+    }
+    return val;
+}
+
+/** Returns whether the stack is empty. */
+bool myStackEmpty(MyStack* obj) 
+{
+    return LinkQueueEmpty(&(obj->q1)) && LinkQueueEmpty(&(obj->q2));
+}
+
+void myStackFree(MyStack* obj) 
+{
+    LinkQueueDestroy(&(obj->q1));
+    LinkQueueDestroy(&(obj->q2));
+    free(obj);
+}
+
+3、用栈实现队列 [https://leetcode-cn.com/problems/implement-queue-using-stacks/]
+
+//链栈
+#define ElemType char
+typedef struct LinkStackNode
+{
+	ElemType data;
+	struct LinkStackNode *next;
+}LinkStackNode;
+typedef struct LinkStack
+{
+	LinkStackNode *head;
+}LinkStack;
+
+void LinkStackInit(LinkStack *pst);
+void LinkStackPush(LinkStack *pst, ElemType v);
+void LinkStackPop(LinkStack *pst);
+ElemType LinkStackTop(LinkStack *pst);
+void LinkStackShow(LinkStack *pst);
+void LinkStackDestroy(LinkStack *pst);
+bool LinkStackEmpty(LinkStack *pst);
+
+void LinkStackInit(LinkStack *pst)
+{
+	pst->head = NULL;
+}
+
+void LinkStackPush(LinkStack *pst, ElemType v)
+{
+	LinkStackNode *s = (LinkStackNode*)malloc(sizeof(LinkStackNode));
+	assert(s != NULL);
+	s->data = v;
+
+	s->next = pst->head;
+	pst->head = s;
+}
+
+void LinkStackPop(LinkStack *pst)
+{
+	LinkStackNode *p;
+	if(pst->head == NULL)
+		return;
+	p  = pst->head;
+	pst->head = p->next;
+	free(p);
+}
+
+ElemType LinkStackTop(LinkStack *pst)
+{
+	assert(pst->head != NULL);
+	return pst->head->data;
+}
+
+void LinkStackShow(LinkStack *pst)
+{
+	LinkStackNode *p = pst->head;
+	while(p != NULL)
+	{
+		printf("%d\n", p->data);
+		p = p->next;
+	}
+}
+
+void LinkStackDestroy(LinkStack *pst)
+{
+	LinkStackNode *p = pst->head;
+	while(p != NULL)
+	{
+		pst->head = p->next;
+		free(p);
+		p = pst->head;
+	}
+}
+
+bool LinkStackEmpty(LinkStack *pst)
+{
+    return pst->head == NULL;    
+}
+//////////////////////////////////////////////
+
+typedef struct 
+{
+    LinkStack st1;
+    LinkStack st2;
+} MyQueue;
+
+/** Initialize your data structure here. */
+
+MyQueue* myQueueCreate() 
+{
+    MyQueue *pq = (MyQueue*)malloc(sizeof(MyQueue));
+    LinkStackInit(&(pq->st1));
+    LinkStackInit(&(pq->st2));
+    return pq;
+}
+
+/** Push element x to the back of queue. */
+void myQueuePush(MyQueue* obj, int x) 
+{
+    LinkStackPush(&(obj->st1), x);
+}
+
+/** Removes the element from in front of queue and returns that element. */
+int myQueuePop(MyQueue* obj) 
+{
+    if(LinkStackEmpty(&(obj->st2)))
+    {
+        while(!LinkStackEmpty(&(obj->st1)))
+        {
+            LinkStackPush(&(obj->st2), LinkStackTop(&(obj->st1)));
+            LinkStackPop(&(obj->st1));
+        }
+    }
+    int val = LinkStackTop(&(obj->st2));
+    LinkStackPop(&(obj->st2));
+    return val;
+}
+
+/** Get the front element. */
+int myQueuePeek(MyQueue* obj) 
+{
+    if(LinkStackEmpty(&(obj->st2)))
+    {
+        while(!LinkStackEmpty(&(obj->st1)))
+        {
+            LinkStackPush(&(obj->st2), LinkStackTop(&(obj->st1)));
+            LinkStackPop(&(obj->st1));
+        }
+    }
+    return LinkStackTop(&(obj->st2));
+}
+
+/** Returns whether the queue is empty. */
+bool myQueueEmpty(MyQueue* obj) 
+{
+    return LinkStackEmpty(&(obj->st1)) && LinkStackEmpty(&(obj->st2));
+}
+
+void myQueueFree(MyQueue* obj) 
+{
+    LinkStackDestroy(&(obj->st1));
+    LinkStackDestroy(&(obj->st2));
+    free(obj);
+}
+
+4、设计循环队列 [https://leetcode-cn.com/problems/design-circular-queue/]
+typedef struct 
+{
+    int *base;
+    int capacity;
+    int front;
+    int rear;
+} MyCircularQueue;
+
+
+MyCircularQueue* myCircularQueueCreate(int k) 
+{
+    MyCircularQueue *pcq = (MyCircularQueue*)malloc(sizeof(MyCircularQueue));
+
+    pcq->capacity = k;
+    pcq->base = (int*)malloc(sizeof(int) * (pcq->capacity+1));
+    pcq->front = pcq->rear = 0;
+    return pcq;
+}
+
+
+bool myCircularQueueIsEmpty(MyCircularQueue* obj) 
+{
+    return obj->front == obj->rear;
+}
+
+bool myCircularQueueIsFull(MyCircularQueue* obj) 
+{
+    return (obj->rear+1)%(obj->capacity+1) == obj->front;
+}
+
+bool myCircularQueueEnQueue(MyCircularQueue* obj, int value) 
+{
+    if(myCircularQueueIsFull(obj))
+        return false;
+    
+    obj->base[obj->rear] = value;
+    obj->rear = (obj->rear+1)%(obj->capacity+1);
+    return true;
+}
+
+bool myCircularQueueDeQueue(MyCircularQueue* obj) 
+{
+    if(myCircularQueueIsEmpty(obj))
+        return false;
+    
+    obj->front = (obj->front+1)%(obj->capacity+1);
+    return true;
+}
+
+int myCircularQueueFront(MyCircularQueue* obj) 
+{
+    if(myCircularQueueIsEmpty(obj))
+        return -1;
+    return obj->base[obj->front];
+}
+
+int myCircularQueueRear(MyCircularQueue* obj) 
+{
+    if(myCircularQueueIsEmpty(obj))
+        return -1;
+    return obj->base[(obj->rear-1+obj->capacity+1) % (obj->capacity+1)];
+}
+
+void myCircularQueueFree(MyCircularQueue* obj) 
+{
+    free(obj->base);
+    obj->base = NULL;
+    obj->front = obj->rear = 0;
+    free(obj);
+}
+
+Lesson5 二叉树
+1、单值二叉树 [https://leetcode-cn.com/problems/univalued-binary-tree/]
+bool isUnivalTree(struct TreeNode* root)
+{
+    if(root == NULL)
+        return true;
+    bool left_res = (root->left==NULL || (root->left->val==root->val && isUnivalTree(root->left)));
+    bool right_res = (root->right==NULL || (root->right->val==root->val && isUnivalTree(root->right)));
+    return left_res && right_res;
+}
+
+2、检查两颗树是否相同 [https://leetcode-cn.com/problems/same-tree/]
+bool isSameTree(struct TreeNode* p, struct TreeNode* q)
+{
+    if(p==NULL && q==NULL)
+        return true;
+    if(p==NULL || q==NULL)
+        return false;
+    
+    return p->val==q->val && isSameTree(p->left, q->left) && isSameTree(p->right, q->right);
+}
+
+3、对称二叉树 [https://leetcode-cn.com/problems/symmetric-tree/]
+bool _isSymmetric(struct TreeNode* t1, struct TreeNode* t2)
+{
+    if(t1==NULL && t2==NULL)
+        return true;
+    if(t1==NULL || t2==NULL)
+        return false;
+    return (t1->val==t2->val && _isSymmetric(t1->left, t2->right) && _isSymmetric(t1->right, t2->left));
+}
+
+bool isSymmetric(struct TreeNode* root)
+{
+    if(root == NULL)
+        return true;
+    return _isSymmetric(root->left, root->right);
+}
+
+4、二叉树的前序遍历 [https://leetcode-cn.com/problems/binary-tree-preorder-traversal/] 
+size_t Size(struct TreeNode *root)
+{
+    if(root == NULL)
+        return 0;
+    return Size(root->left) + Size(root->right) + 1;
+}
+
+void _preorderTraversal(struct TreeNode*root, int *preorder_array, int *i)
+{
+    if(root != NULL)
+    {
+        preorder_array[*i] = root->val;
+        (*i)++;
+        _preorderTraversal(root->left, preorder_array, i);
+        _preorderTraversal(root->right, preorder_array, i);
+    }    
+}
+
+int* preorderTraversal(struct TreeNode* root, int* returnSize)
+{
+    int n = Size(root);
+    int *preorder_array = (int*)malloc(sizeof(int) * n);
+    *returnSize = n;
+
+    int index = 0;
+    _preorderTraversal(root, preorder_array, &index);
+    return preorder_array;
+}
+
+5、二叉树中序遍历 [https://leetcode-cn.com/problems/binary-tree-inorder-traversal/]
+size_t Size(struct TreeNode *root)
+{
+    if(root == NULL)
+        return 0;
+    return Size(root->left) + Size(root->right) + 1;
+}
+
+void _inorderTraversal(struct TreeNode*root, int *inorder_array, int *i)
+{
+    if(root != NULL)
+    {
+        _inorderTraversal(root->left, inorder_array, i);
+        inorder_array[*i] = root->val;
+        (*i)++;
+        _inorderTraversal(root->right, inorder_array, i);
+    }    
+}
+
+int* inorderTraversal(struct TreeNode* root, int* returnSize)
+{
+    int n = Size(root);
+    int *inorder_array = (int*)malloc(sizeof(int) * n);
+    *returnSize = n;
+
+    int index = 0;
+    _inorderTraversal(root, inorder_array, &index);
+    return inorder_array;
+}
+
+
+6、二叉树的后序遍历 [https://leetcode-cn.com/problems/binary-tree-postorder-traversal/]
+int size(struct TreeNode *t)
+{
+    if(t == NULL)
+        return 0;
+    else
+        return size(t->left) + size(t->right) + 1;
+}
+
+void _postorderTraversal(struct TreeNode *root, int *postorder_array, int *i)
+{
+    if(root != NULL)
+    {
+        _postorderTraversal(root->left, postorder_array, i);
+        _postorderTraversal(root->right, postorder_array, i);
+                 
+        postorder_array[*i] = root->val;
+        (*i)++;
+    }
+}
+
+int* postorderTraversal(struct TreeNode* root, int* returnSize)
+{
+    int n = size(root);
+    int *postorder_array = (int*)malloc(sizeof(int) * n);
+    *returnSize = n;
+
+    int index = 0;
+    _postorderTraversal(root, postorder_array, &index);
+    return postorder_array;
+}
+
+7、另一颗树的子树 [https://leetcode-cn.com/problems/subtree-of-another-tree/]
+bool _isSubtree(struct TreeNode *root, struct TreeNode *subRoot)
+{
+    if(root==NULL && subRoot==NULL)
+        return true;
+    if(root==NULL || subRoot==NULL)
+        return false;
+    
+    return root->val==subRoot->val && _isSubtree(root->left, subRoot->left) && _isSubtree(root->right, subRoot->right);
+}
+
+bool isSubtree(struct TreeNode* root, struct TreeNode* subRoot)
+{
+    if(subRoot == NULL)
+        return true;
+    if(root == NULL)
+        return false;
+    if(_isSubtree(root, subRoot))
+        return true;
+    return isSubtree(root->left, subRoot) || isSubtree(root->right, subRoot);
+}
